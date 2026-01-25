@@ -9,10 +9,10 @@
 
 | S.No | Name           | Roll Number      |
 |------|----------------|------------------|
-| 1    | Praveen Reddy  | CB.SC.U4AIE24243 |
-| 2    | Police Aryan   | CB.SC.U4AIE24241 |
-| 3    | Jithin Reddy   | CB.SC.U4AIE24230 |
-| 4    | Deepika Reddy  | CB.SC.U4AIE24215 |
+| 1    | Deepika Reddy  | CB.SC.U4AIE24215 |
+| 2    | Jithin Reddy   | CB.SC.U4AIE24230 |
+| 3    | Police Aryan  | CB.SC.U4AIE24241 |
+| 4    |  Praveen Reddy  | CB.SC.U4AIE24243 |
 
 ---
 
