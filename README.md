@@ -30,7 +30,7 @@ https://doi.org/10.3390/mca28050097
 
 # Introduction
 
-Image deblurring is an inverse problem where we recover the original image \(u\) from a blurred observation \(z\).
+Image deblurring is an inverse problem where the goal is to recover the original image \(u\) from a blurred observation \(z\).
 
 $$
 z = Ku + \varepsilon
@@ -40,17 +40,17 @@ Where
 
 - \(K\) = blur operator  
 - \(u\) = original image  
-- \(z\) = blurred image  
+- \(z\) = observed blurred image  
 - \(\varepsilon\) = noise
 
 ---
 
 # 1. Condition Number
 
-The condition number measures sensitivity of a matrix.
+The condition number measures numerical stability of a matrix.
 
 $$
-\kappa_2(A) =
+\kappa_2(A)=
 \frac{\sigma_{\max}(A)}{\sigma_{\min}(A)}
 $$
 
@@ -71,7 +71,7 @@ then the system is **ill-conditioned**.
 
 # 2. Ill-Conditioned Case
 
-After discretization the problem becomes a saddle-point system
+After discretization the problem becomes a **saddle-point system**
 
 $$
 \begin{bmatrix}
@@ -161,20 +161,13 @@ $$
 \right)
 $$
 
-### Advantages
-
-- Edge preserving
-- Noise removal
-
-### Problem
-
-TV produces **staircase artifacts**.
+TV preserves edges but introduces **staircase artifacts**.
 
 ---
 
 # 5. Total Fractional Order Variation (TFOV)
 
-TFOV extends TV using fractional derivatives.
+The TFOV model extends TV using fractional derivatives.
 
 $$
 \min_u
@@ -190,7 +183,7 @@ $$
 
 Where
 
-- \( \alpha \) = fractional order
+- \( \alpha \) = fractional derivative order
 - \( \beta \) = regularization parameter
 
 ---
@@ -250,12 +243,12 @@ TV reconstruction may produce piecewise constant regions.
 
 ---
 
-# 8. Blur Operators
+# 8. Examples of Blur Operators
 
 ### Gaussian Blur
 
 $$
-K(x,y) =
+K(x,y)=
 \frac{1}{2\pi\sigma^2}
 e^{-\frac{x^2+y^2}{2\sigma^2}}
 $$
@@ -263,7 +256,7 @@ $$
 ### Motion Blur
 
 $$
-K(x,y) =
+K(x,y)=
 \frac{1}{L}
 \text{rect}\left(\frac{x}{L}\right)
 $$
@@ -276,11 +269,11 @@ Example blurred image
 
 # 9. TV vs TFOV Demonstration
 
-TV result:
+TV result
 
 ![TV Result](Screenshot%202026-03-13%20202317.png)
 
-TFOV result:
+TFOV result
 
 ![TFOV Result](Screenshot%202026-03-13%20202335.png)
 
@@ -293,14 +286,14 @@ TFOV result:
 
 # Conclusion
 
-This project studied **preconditioning techniques for image deblurring using TFOV**.
+This project studies **preconditioning techniques for image deblurring using TFOV**.
 
-Key observations:
+Key results:
 
 - Deblurring problems are ill-conditioned
-- Preconditioning improves convergence
+- Preconditioning improves solver convergence
 - TV produces staircase artifacts
-- TFOV improves smoothness and texture preservation
+- TFOV reduces staircase artifacts and improves image quality
 
 ---
 
