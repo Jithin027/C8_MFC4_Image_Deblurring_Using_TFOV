@@ -82,8 +82,7 @@ I_n & K_h \\
 V_h \\
 U_h
 \end{bmatrix}
-=
-\begin{bmatrix}
+=\begin{bmatrix}
 Z_h \\
 0
 \end{bmatrix}
