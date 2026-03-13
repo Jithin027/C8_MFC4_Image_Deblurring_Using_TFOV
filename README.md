@@ -1,11 +1,11 @@
-# Preconditioning Technique for an Image Deblurring Problem using TFOV Model
+# Image Deblurring using TFOV Model with Preconditioning
 
 ## Course
 **22MAT230 – Mathematics for Computing IV**
 
 ---
 
-# 1. Team Members
+# Team Members
 
 | S.No | Name | Roll Number |
 |-----|------|-------------|
@@ -16,55 +16,50 @@
 
 ---
 
-# 2. Base / Reference Paper
+# Reference Paper
 
-**Al-Mahdi, A.M. (2023)**  
-*Preconditioning Technique for an Image Deblurring Problem with the Total Fractional-Order Variation Model.*
+Al-Mahdi, A.M. (2023)  
+*Preconditioning Technique for an Image Deblurring Problem with the Total Fractional-Order Variation Model*
 
-Journal: Mathematical and Computational Applications  
+Mathematical and Computational Applications  
 Volume 28, Issue 5, Article 97
 
-DOI  
 https://doi.org/10.3390/mca28050097
-
-Full Paper  
-https://www.mdpi.com/2297-8747/28/5/97/htm
 
 ---
 
-# 3. Project Outline
+# Introduction
 
-Image deblurring is an **ill-posed inverse problem** where we recover the original sharp image $u$ from a blurred observation.
+Image deblurring is an **inverse problem** where the goal is to recover the original image \(u\) from a blurred observation \(z\).
+
+The mathematical model is
 
 $$
 z = Ku + \varepsilon
 $$
 
-Where:
+Where
 
-- $K$ = blur operator  
-- $u$ = original image  
-- $z$ = observed blurred image  
-- $\varepsilon$ = noise  
-
----
-
-# 4. Key Mathematical Concepts
+- \(K\) = blur operator  
+- \(u\) = original image  
+- \(z\) = observed blurred image  
+- \(\varepsilon\) = noise
 
 ---
 
-## 4.1 Condition Number
+# 1. Condition Number
 
-The condition number measures the numerical stability of a matrix.
+The **condition number** measures how sensitive a matrix is to numerical errors.
 
 $$
-\kappa_2(A) = \frac{\sigma_{\max}(A)}{\sigma_{\min}(A)}
+\kappa_2(A) =
+\frac{\sigma_{\max}(A)}{\sigma_{\min}(A)}
 $$
 
-Where:
+Where
 
-- $\sigma_{\max}$ = largest singular value  
-- $\sigma_{\min}$ = smallest singular value  
+- \( \sigma_{\max} \) = largest singular value  
+- \( \sigma_{\min} \) = smallest singular value
 
 If
 
@@ -74,16 +69,18 @@ $$
 
 then the system is **ill-conditioned**.
 
+Large condition numbers often appear in **image deblurring problems** because blur operators remove high-frequency information.
+
 ---
 
-# 4.2 Ill-Conditioned Saddle-Point System
+# 2. Ill-Conditioned Case
 
-After discretization the optimization problem becomes
+After discretization, the optimization problem becomes a **saddle-point system**
 
 $$
 \begin{bmatrix}
 I_n & K_h \\
--K_h^* & \lambda L_h^{\alpha}(U_h)
+-K_h^* & \lambda L_h^\alpha(U_h)
 \end{bmatrix}
 \begin{bmatrix}
 V_h \\
@@ -96,37 +93,40 @@ Z_h \\
 \end{bmatrix}
 $$
 
-System size:
+Where
+
+- \(n = N^2\) pixels
+- system size = \(2n \times 2n\)
+
+The **Schur complement**
 
 $$
-2n \times 2n
+S = K_h^*K_h + \lambda L_h^\alpha(U_h)
 $$
 
-where
-
-$$
-n = N^2
-$$
+becomes extremely ill-conditioned.
 
 ---
 
-## Schur Complement
+# 3. Preconditioning
+
+Preconditioning improves convergence of iterative solvers.
+
+Instead of solving
 
 $$
-S = K_h^* K_h + \lambda L_h^{\alpha}(U_h)
+Ax = b
 $$
 
-This matrix becomes **extremely ill-conditioned**.
+we solve
 
----
+$$
+P^{-1}Ax = P^{-1}b
+$$
 
-# 4.3 Preconditioning
+Where \(P\) approximates \(A\).
 
-To improve convergence we use **block triangular preconditioners**.
-
----
-
-## Preconditioner $P_1$
+### Block Preconditioner
 
 $$
 P_1 =
@@ -136,150 +136,230 @@ I_n & K_h \\
 \end{bmatrix}
 $$
 
----
-
-## Preconditioner $P_2$
+Another version
 
 $$
 P_2 =
 \begin{bmatrix}
 I_n & K_h \\
-0 & -(C^* C + \lambda L_{TV})
+0 & -(C^*C + \lambda L_{TV})
 \end{bmatrix}
 $$
 
-Where:
-
-- $C$ is a **circulant approximation** of $K_h$.
-
-Circulant matrices allow **FFT-based fast inversion**.
+Where \(C\) is a **circulant approximation of \(K_h\)** enabling fast FFT inversion.
 
 ---
 
-# Solver Strategy
+# 4. Total Variation (TV) Model
 
-The algorithm combines:
-
-- **FGMRES** (outer solver)
-- **PCG** (inner solver)
-- **Fixed-Point Iteration**
-
-Iteration equation:
+The TV regularization model is
 
 $$
-(K^T K + \lambda L_h^{\alpha}(U^{(m)}))U^{(m+1)} = K^T z
-$$
-
-for
-
-$$
-m = 0,1,2,\dots
-$$
-
----
-
-# 4.4 Total Variation (TV) Model
-
-$$
-\min_{u}
+\min_u
 \left(
 \frac{1}{2}\|Ku - z\|_2^2
 +
-\lambda
-\int_{\Omega} |\nabla u|\,dx
+\lambda \int_{\Omega} |\nabla u| dx
 \right)
 $$
 
-TV preserves edges but introduces **staircase artifacts**.
+### Advantages
+
+- Edge preserving
+- Noise reduction
+
+### Problem
+
+TV produces **staircase artifacts** where smooth regions become piecewise constant.
 
 ---
 
-# 4.5 Total Fractional-Order Variation (TFOV) Model
+# 5. Total Fractional Order Variation (TFOV) Model
+
+The TFOV model generalizes TV using fractional derivatives.
 
 $$
-\min_{u}
+\min_u
 \left(
 \frac{1}{2}\|Ku - z\|_2^2
 +
 \lambda
 \int_{\Omega}
-\sqrt{|\nabla^{\alpha} u|^2 + \beta^2}\,dx
+\sqrt{|\nabla^\alpha u|^2 + \beta^2}
+dx
 \right)
 $$
 
-Where:
+Where
 
-- $\alpha$ = fractional order  
-- $\beta$ = small regularization parameter  
+- \( \alpha \) = fractional derivative order
+- \( \beta \) = small regularization constant
 
----
-
-## Fractional Divergence
+### Fractional Divergence
 
 $$
-\mathrm{div}^{\alpha} \phi =
+\mathrm{div}^{\alpha}\phi =
 \frac{\partial^{\alpha}\phi_1}{\partial x^{\alpha}}
 +
 \frac{\partial^{\alpha}\phi_2}{\partial y^{\alpha}}
 $$
 
----
-
-# Advantages of TFOV
-
-- Reduces staircase artifacts  
-- Preserves textures  
-- Provides non-local smoothing  
-- Higher PSNR for $\alpha > 1$
+TFOV reduces staircase artifacts due to **non-local smoothing**.
 
 ---
 
-# 5. Experimental Results
+# 6. Small Example for Preconditioning
 
-## Result Image 1
+Consider a simple linear system
 
-![Result1](Screenshot 2026-03-13 202142.png)
+$$
+A =
+\begin{bmatrix}
+4 & 1 \\
+1 & 3
+\end{bmatrix}
+$$
+
+Solving
+
+$$
+Ax = b
+$$
+
+If we choose preconditioner
+
+$$
+P =
+\begin{bmatrix}
+4 & 0 \\
+0 & 3
+\end{bmatrix}
+$$
+
+Then
+
+$$
+P^{-1}A
+=
+\begin{bmatrix}
+1 & 0.25 \\
+0.33 & 1
+\end{bmatrix}
+$$
+
+The condition number becomes smaller and iterative solvers converge faster.
 
 ---
 
-## Result Image 2
+# 7. Example of Staircase Effect
 
-![Result2](Screenshot 2026-03-13 202301.png)
+The staircase effect occurs when smooth gradients become flat blocks.
 
----
+Example:
 
-## Result Image 3
+Original signal
 
-![Result3](Screenshot 2026-03-13 202317.png)
+```
+Smooth gradient
+```
 
----
+TV reconstruction
 
-## Result Image 4
+```
+Step-like regions
+```
 
-![Result4](Screenshot 2026-03-13 202335.png)
+### Example Image
 
----
-
-# 6. Conclusion
-
-This project studied **preconditioning techniques for image deblurring using the TFOV model**.
-
-Key observations:
-
-- TFOV reduces staircase artifacts compared to classical TV
-- Block triangular preconditioners improve convergence
-- FGMRES + PCG efficiently solve large saddle-point systems
-- Fractional models preserve textures better
-
-Thus TFOV combined with preconditioning provides an effective method for **high-quality image restoration**.
+![Staircase Example](Screenshot%202026-03-13%20202142.png)
 
 ---
 
-# 7. References
+# 8. Examples of Blur Operators \(K\)
 
-1. Al-Mahdi, A.M. (2023).  
-   *Preconditioning Technique for an Image Deblurring Problem with the Total Fractional-Order Variation Model.*
+Common blur operators include:
 
-2. Mathematical and Computational Applications, 28(5), 97.
+### 1. Gaussian Blur
+
+$$
+K(x,y) =
+\frac{1}{2\pi\sigma^2}
+e^{-\frac{x^2+y^2}{2\sigma^2}}
+$$
+
+Used for camera lens blur.
+
+---
+
+### 2. Motion Blur
+
+Blur caused by camera motion:
+
+$$
+K(x,y) =
+\frac{1}{L}
+\text{rect}\left(\frac{x}{L}\right)
+$$
+
+---
+
+### 3. Defocus Blur
+
+Circular blur caused by out-of-focus lens.
+
+---
+
+Example blur image:
+
+![Blur Example](Screenshot%202026-03-13%20202301.png)
+
+---
+
+# 9. TV vs TFOV Demonstration
+
+TV reconstruction often produces staircase artifacts.
+
+Example TV result:
+
+![TV Result](Screenshot%202026-03-13%20202317.png)
+
+TFOV improves smoothness and preserves texture.
+
+Example TFOV result:
+
+![TFOV Result](Screenshot%202026-03-13%20202335.png)
+
+### Observations
+
+| Model | Result |
+|------|------|
+| TV | staircase artifacts |
+| TFOV | smoother edges |
+| TFOV | better texture preservation |
+
+---
+
+# Conclusion
+
+This project studied **preconditioning methods for image deblurring using the TFOV model**.
+
+Key results:
+
+- Ill-conditioned systems arise in deblurring problems
+- Preconditioning improves solver convergence
+- TV model preserves edges but introduces staircase artifacts
+- TFOV reduces staircase artifacts and improves reconstruction quality
+
+Thus TFOV combined with Krylov solvers provides an efficient framework for **high-quality image restoration**.
+
+---
+
+# References
+
+1. Al-Mahdi, A.M. (2023)  
+Preconditioning Technique for an Image Deblurring Problem with the Total Fractional-Order Variation Model
+
+2. Mathematical and Computational Applications
 
 3. https://doi.org/10.3390/mca28050097
+4. 
