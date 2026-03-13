@@ -30,9 +30,7 @@ https://doi.org/10.3390/mca28050097
 
 # Introduction
 
-Image deblurring is an **inverse problem** where the goal is to recover the original image \(u\) from a blurred observation \(z\).
-
-The mathematical model is
+Image deblurring is an inverse problem where we recover the original image \(u\) from a blurred observation \(z\).
 
 $$
 z = Ku + \varepsilon
@@ -42,14 +40,14 @@ Where
 
 - \(K\) = blur operator  
 - \(u\) = original image  
-- \(z\) = observed blurred image  
+- \(z\) = blurred image  
 - \(\varepsilon\) = noise
 
 ---
 
 # 1. Condition Number
 
-The **condition number** measures how sensitive a matrix is to numerical errors.
+The condition number measures sensitivity of a matrix.
 
 $$
 \kappa_2(A) =
@@ -69,13 +67,11 @@ $$
 
 then the system is **ill-conditioned**.
 
-Large condition numbers often appear in **image deblurring problems** because blur operators remove high-frequency information.
-
 ---
 
 # 2. Ill-Conditioned Case
 
-After discretization, the optimization problem becomes a **saddle-point system**
+After discretization the problem becomes a saddle-point system
 
 $$
 \begin{bmatrix}
@@ -98,13 +94,15 @@ Where
 - \(n = N^2\) pixels
 - system size = \(2n \times 2n\)
 
-The **Schur complement**
+---
+
+## Schur Complement
 
 $$
 S = K_h^*K_h + \lambda L_h^\alpha(U_h)
 $$
 
-becomes extremely ill-conditioned.
+This matrix becomes extremely ill-conditioned.
 
 ---
 
@@ -136,7 +134,7 @@ I_n & K_h \\
 \end{bmatrix}
 $$
 
-Another version
+Another preconditioner
 
 $$
 P_2 =
@@ -146,7 +144,7 @@ I_n & K_h \\
 \end{bmatrix}
 $$
 
-Where \(C\) is a **circulant approximation of \(K_h\)** enabling fast FFT inversion.
+Where \(C\) is a circulant approximation of \(K_h\).
 
 ---
 
@@ -166,17 +164,17 @@ $$
 ### Advantages
 
 - Edge preserving
-- Noise reduction
+- Noise removal
 
 ### Problem
 
-TV produces **staircase artifacts** where smooth regions become piecewise constant.
+TV produces **staircase artifacts**.
 
 ---
 
-# 5. Total Fractional Order Variation (TFOV) Model
+# 5. Total Fractional Order Variation (TFOV)
 
-The TFOV model generalizes TV using fractional derivatives.
+TFOV extends TV using fractional derivatives.
 
 $$
 \min_u
@@ -192,25 +190,25 @@ $$
 
 Where
 
-- \( \alpha \) = fractional derivative order
-- \( \beta \) = small regularization constant
+- \( \alpha \) = fractional order
+- \( \beta \) = regularization parameter
 
-### Fractional Divergence
+---
+
+## Fractional Divergence
 
 $$
-\mathrm{div}^{\alpha}\phi =
-\frac{\partial^{\alpha}\phi_1}{\partial x^{\alpha}}
+\mathrm{div}^\alpha \phi =
+\frac{\partial^\alpha \phi_1}{\partial x^\alpha}
 +
-\frac{\partial^{\alpha}\phi_2}{\partial y^{\alpha}}
+\frac{\partial^\alpha \phi_2}{\partial y^\alpha}
 $$
-
-TFOV reduces staircase artifacts due to **non-local smoothing**.
 
 ---
 
 # 6. Small Example for Preconditioning
 
-Consider a simple linear system
+Consider
 
 $$
 A =
@@ -220,13 +218,7 @@ A =
 \end{bmatrix}
 $$
 
-Solving
-
-$$
-Ax = b
-$$
-
-If we choose preconditioner
+Choose preconditioner
 
 $$
 P =
@@ -239,47 +231,28 @@ $$
 Then
 
 $$
-P^{-1}A
-=
+P^{-1}A =
 \begin{bmatrix}
 1 & 0.25 \\
 0.33 & 1
 \end{bmatrix}
 $$
 
-The condition number becomes smaller and iterative solvers converge faster.
+This reduces the condition number and improves convergence.
 
 ---
 
-# 7. Example of Staircase Effect
+# 7. Staircase Effect Example
 
-The staircase effect occurs when smooth gradients become flat blocks.
-
-Example:
-
-Original signal
-
-```
-Smooth gradient
-```
-
-TV reconstruction
-
-```
-Step-like regions
-```
-
-### Example Image
+TV reconstruction may produce piecewise constant regions.
 
 ![Staircase Example](Screenshot%202026-03-13%20202142.png)
 
 ---
 
-# 8. Examples of Blur Operators \(K\)
+# 8. Blur Operators
 
-Common blur operators include:
-
-### 1. Gaussian Blur
+### Gaussian Blur
 
 $$
 K(x,y) =
@@ -287,13 +260,7 @@ K(x,y) =
 e^{-\frac{x^2+y^2}{2\sigma^2}}
 $$
 
-Used for camera lens blur.
-
----
-
-### 2. Motion Blur
-
-Blur caused by camera motion:
+### Motion Blur
 
 $$
 K(x,y) =
@@ -301,15 +268,7 @@ K(x,y) =
 \text{rect}\left(\frac{x}{L}\right)
 $$
 
----
-
-### 3. Defocus Blur
-
-Circular blur caused by out-of-focus lens.
-
----
-
-Example blur image:
+Example blurred image
 
 ![Blur Example](Screenshot%202026-03-13%20202301.png)
 
@@ -317,40 +276,31 @@ Example blur image:
 
 # 9. TV vs TFOV Demonstration
 
-TV reconstruction often produces staircase artifacts.
-
-Example TV result:
+TV result:
 
 ![TV Result](Screenshot%202026-03-13%20202317.png)
 
-TFOV improves smoothness and preserves texture.
-
-Example TFOV result:
+TFOV result:
 
 ![TFOV Result](Screenshot%202026-03-13%20202335.png)
 
-### Observations
-
-| Model | Result |
-|------|------|
+| Model | Observation |
+|------|-------------|
 | TV | staircase artifacts |
-| TFOV | smoother edges |
-| TFOV | better texture preservation |
+| TFOV | smoother reconstruction |
 
 ---
 
 # Conclusion
 
-This project studied **preconditioning methods for image deblurring using the TFOV model**.
+This project studied **preconditioning techniques for image deblurring using TFOV**.
 
-Key results:
+Key observations:
 
-- Ill-conditioned systems arise in deblurring problems
-- Preconditioning improves solver convergence
-- TV model preserves edges but introduces staircase artifacts
-- TFOV reduces staircase artifacts and improves reconstruction quality
-
-Thus TFOV combined with Krylov solvers provides an efficient framework for **high-quality image restoration**.
+- Deblurring problems are ill-conditioned
+- Preconditioning improves convergence
+- TV produces staircase artifacts
+- TFOV improves smoothness and texture preservation
 
 ---
 
@@ -362,4 +312,3 @@ Preconditioning Technique for an Image Deblurring Problem with the Total Fractio
 2. Mathematical and Computational Applications
 
 3. https://doi.org/10.3390/mca28050097
-4. 
